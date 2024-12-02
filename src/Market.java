@@ -19,76 +19,65 @@ public class Market {
         public void addProduct() {
             String[] product = createProduct();
             productsList.add(product);
-            System.out.println("Ваша задача успешно добавлена!");
+            System.out.println("Продукт успешно добавлен!");
         }
 
         @Override
         public void removeProduct() {
-            if (!productsList.isEmpty()) {
-                System.out.println("Для удаления продукта введите его ID: ");
-                String UTId = sc.nextLine();
-
-                if (removeProductById(UTId)) {
-                    System.out.println("Ваш продукт был удален!");
-                } else {
-                    System.out.println("Продукт не найден!");
-                }
-            } else {
+            if (productsList.isEmpty()) {
                 System.out.println("У вас нет продуктов для удаления!");
+                return;
+            }
+
+            System.out.println("Для удаления продукта введите его ID:");
+            String productId = sc.nextLine();
+
+            if (removeProductById(productId)) {
+                System.out.println("Продукт был успешно удален!");
+            } else {
+                System.out.println("Продукт не найден!");
             }
         }
 
         @Override
         public void sellProduct() {
-            if (!userProductsList.isEmpty()) {
-                System.out.println("Для того чтобы продать продукт введите его ID: ");
-                String UTId = sc.nextLine();
+            if (userProductsList.isEmpty()) {
+                System.out.println("У вас нет продуктов для продажи!");
+                return;
+            }
 
-                if (sellProductById(UTId)) {
-                    System.out.println("Ваш продукт был продан!");
-                } else {
-                    System.out.println("продукт не найден!");
-                }
+            System.out.println("Для продажи продукта введите его ID:");
+            String productId = sc.nextLine();
+
+            if (sellProductById(productId)) {
+                System.out.println("Продукт был успешно продан!");
             } else {
-                System.out.println("У вас нет продуктов для продавания!");
+                System.out.println("Продукт не найден!");
             }
         }
 
         @Override
         public void showProducts() {
-            if (!productsList.isEmpty()) {
-                for (int i = 0; i < productsList.size(); i++) {
-                    String[] product = productsList.get(i);
-                    System.out.println((i + 1) + ". Название: " + product[0] + ". Описание: " + product[1] + ". Цена: " + product[2] + "$" + ". ID: " + product[3] + ".");
-                }
-            } else {
-                System.out.println("У вас нет продуктов для отображения!");
-            }
+            displayProducts(productsList, "У вас нет продуктов для отображения!");
         }
 
         @Override
         public void showUserProducts() {
-            if (!userProductsList.isEmpty()) {
-                for (int i = 0; i < userProductsList.size(); i++) {
-                    String[] product = userProductsList.get(i);
-                    System.out.println((i + 1) + ". Название: " + product[0] + ". Описание: " + product[1] + ". Цена: " + product[2] + "$" + ". ID: " + product[3] + ".");
-                }
-            } else {
-                System.out.println("У вас нет продуктов для отображения!");
-            }
+            displayProducts(userProductsList, "У вас нет продуктов в корзине для отображения!");
         }
 
         @Override
         public void buyProduct() {
-            if (!productsList.isEmpty()) {
-                System.out.println("Для покупки продукта введите его ID: ");
-                String UTId = sc.nextLine();
+            if (productsList.isEmpty()) {
+                System.out.println("Продуктов для покупки нет!");
+                return;
+            }
 
-                if (isProductExist(UTId)) {
-                    System.out.println("Продукт был успешно куплен и добавлен на вашу корзину!");
-                } else {
-                    System.out.println("Продукт не найден!");
-                }
+            System.out.println("Для покупки продукта введите его ID:");
+            String productId = sc.nextLine();
+
+            if (isProductExist(productId)) {
+                System.out.println("Продукт успешно куплен и добавлен в вашу корзину!");
             } else {
                 System.out.println("Продукт не найден!");
             }
@@ -96,81 +85,44 @@ public class Market {
 
         @Override
         public void totalProductsPrice() {
-            if (!productsList.isEmpty()) {
-                System.out.println(totalPP());
-            } else {
-                System.out.println("У вас нет продуктов для отображения!");
-            }
+            System.out.println("Общая цена всех продуктов: " + calculateTotalPrice(productsList));
         }
 
         @Override
         public void totalUserProductsPrice() {
-            if (!productsList.isEmpty()) {
-                System.out.println(totalUPP());
-            } else {
-                System.out.println("У вас нет продуктов для отображения!");
-            }
-        }
-
-        private String totalPP() {
-            int totalPrice = 0;
-            for (String[] strings : productsList) {
-                totalPrice += Integer.parseInt(strings[2]);
-            }
-
-            return totalPrice + "$";
-        }
-
-        private String totalUPP() {
-            int totalPrice = 0;
-            for (String[] strings : userProductsList) {
-                totalPrice += Integer.parseInt(strings[2]);
-            }
-
-            return totalPrice + "$";
+            System.out.println("Общая цена ваших продуктов: " + calculateTotalPrice(userProductsList));
         }
 
         @Override
         public void sortProducts() {
-            if (!productsList.isEmpty()) {
-                productsList.sort(Comparator.comparing(product -> product[0]));
-                System.out.println("Продукты отсортированы!");
-            } else {
-                System.out.println("У вас нет продуктов для сортировки!");
-            }
-
-            if (!userProductsList.isEmpty()) {
-                userProductsList.sort(Comparator.comparing(product -> product[0]));
-                System.out.println("Продукты отсортированы!");
-            } else {
-                System.out.println("У вас нет продуктов в корзине для сортировки!");
-            }
-
-
+            sortProductList(productsList, "Продукты отсортированы!");
+            sortProductList(userProductsList, "Продукты в корзине отсортированы!");
         }
 
         private String[] createProduct() {
-            System.out.println("Введите название продукта (оставьте пустым, чтобы оставить текущий):");
-            String UPTitle = sc.nextLine();
-            if (UPTitle.isBlank()) {
-                UPTitle = null != null ? null : "Без названия";
+            System.out.println("Введите название продукта (оставьте пустым для значения по умолчанию):");
+            String title = sc.nextLine().trim();
+            if (title.isEmpty()) title = "Без названия";
+
+            System.out.println("Введите описание продукта (оставьте пустым для значения по умолчанию):");
+            String description = sc.nextLine().trim();
+            if (description.isEmpty()) description = "Без описания";
+
+            System.out.println("Введите цену продукта (только число, оставьте пустым для значения по умолчанию):");
+            String price = sc.nextLine().trim();
+            if (price.isEmpty()) {
+                price = "10";
+            } else {
+                try {
+                    Integer.parseInt(price);
+                } catch (NumberFormatException e) {
+                    System.out.println("Некорректный ввод цены. Установлено значение по умолчанию: 10.");
+                    price = "10";
+                }
             }
 
-            System.out.println("Введите описание продукта (оставьте пустым, чтобы оставить текущее):");
-            String UPDesc = sc.nextLine();
-            if (UPDesc.isBlank()) {
-                UPDesc = null != null ? null : "Без описания";
-            }
-
-            System.out.println("Введите цену продукта (оставьте пустым, чтобы оставить текущее):");
-            String UPPrice = sc.nextLine();
-            if (UPPrice.isBlank()) {
-                UPPrice = null != null ? null : "10";
-            }
-
-            String id = null != null ? null : UUID.randomUUID().toString();
-
-            return new String[]{UPTitle, UPDesc, UPPrice, id};
+            String id = UUID.randomUUID().toString();
+            return new String[]{title, description, price, id};
         }
 
         private boolean removeProductById(String id) {
@@ -179,9 +131,8 @@ public class Market {
 
         private boolean sellProductById(String id) {
             for (int i = 0; i < userProductsList.size(); i++) {
-                if (Objects.equals(userProductsList.get(i)[3], id)) {
-                    productsList.add(userProductsList.get(i));
-                    userProductsList.remove(i);
+                if (userProductsList.get(i)[3].equals(id)) {
+                    productsList.add(userProductsList.remove(i));
                     return true;
                 }
             }
@@ -190,13 +141,42 @@ public class Market {
 
         private boolean isProductExist(String id) {
             for (int i = 0; i < productsList.size(); i++) {
-                if (Objects.equals(productsList.get(i)[3], id)) {
-                    userProductsList.add(productsList.get(i));
-                    productsList.remove(i);
+                if (productsList.get(i)[3].equals(id)) {
+                    userProductsList.add(productsList.remove(i));
                     return true;
                 }
             }
             return false;
+        }
+
+        private void displayProducts(List<String[]> products, String emptyMessage) {
+            if (products.isEmpty()) {
+                System.out.println(emptyMessage);
+                return;
+            }
+
+            for (int i = 0; i < products.size(); i++) {
+                String[] product = products.get(i);
+                System.out.println((i + 1) + ". Название: " + product[0] +
+                        ". Описание: " + product[1] +
+                        ". Цена: " + product[2] + "$" +
+                        ". ID: " + product[3]);
+            }
+        }
+
+        private String calculateTotalPrice(List<String[]> products) {
+            return products.stream()
+                    .mapToInt(product -> Integer.parseInt(product[2]))
+                    .sum() + "$";
+        }
+
+        private void sortProductList(List<String[]> products, String successMessage) {
+            if (products.isEmpty()) {
+                System.out.println("Нет продуктов для сортировки.");
+            } else {
+                products.sort(Comparator.comparing(product -> product[0]));
+                System.out.println(successMessage);
+            }
         }
     };
 }
